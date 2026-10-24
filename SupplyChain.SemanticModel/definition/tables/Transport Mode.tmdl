@@ -1,0 +1,28 @@
+/// Transportation modes: air, rail, road and sea.
+table 'Transport Mode'
+	lineageTag: 5a5657c3-ad4e-441c-ae2a-77533eb00ec1
+
+	column 'Transport Mode Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c1681d5d-8dcc-4ea6-a877-735f6d116ecc
+		summarizeBy: none
+		sourceColumn: Transport Mode Key
+
+	column 'Transport Mode'
+		dataType: string
+		lineageTag: 657739a3-e2ea-40c3-bc32-a410b30e895d
+		summarizeBy: none
+		sourceColumn: Transport Mode
+
+	partition 'Transport Mode' = m
+		mode: import
+		source =
+				let
+					Source = #"Source Data",
+					#"Listed values" = List.Sort(List.Distinct(Source[Transport Mode])),
+					#"Built table" = Table.FromColumns({List.Numbers(1, List.Count(#"Listed values")), #"Listed values"}, type table [Transport Mode Key = Int64.Type, Transport Mode = text])
+				in
+					#"Built table"
+

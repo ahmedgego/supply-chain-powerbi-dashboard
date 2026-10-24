@@ -1,0 +1,32 @@
+relationship 'Supply Chain to Product'
+	fromColumn: 'Supply Chain'.'Product Key'
+	toColumn: Product.'Product Key'
+
+relationship 'Supply Chain to Supplier'
+	fromColumn: 'Supply Chain'.'Supplier Key'
+	toColumn: Supplier.'Supplier Key'
+
+relationship 'Supply Chain to Location'
+	fromColumn: 'Supply Chain'.'Location Key'
+	toColumn: Location.'Location Key'
+
+relationship 'Supply Chain to Carrier'
+	fromColumn: 'Supply Chain'.'Carrier Key'
+	toColumn: Carrier.'Carrier Key'
+
+relationship 'Supply Chain to Transport Mode'
+	fromColumn: 'Supply Chain'.'Transport Mode Key'
+	toColumn: 'Transport Mode'.'Transport Mode Key'
+
+relationship 'Supply Chain to Route'
+	fromColumn: 'Supply Chain'.'Route Key'
+	toColumn: Route.'Route Key'
+
+relationship 'Supply Chain to Customer Segment'
+	fromColumn: 'Supply Chain'.'Segment Key'
+	toColumn: 'Customer Segment'.'Segment Key'
+
+relationship 'Supply Chain to Inspection'
+	fromColumn: 'Supply Chain'.'Inspection Key'
+	toColumn: Inspection.'Inspection Key'
+

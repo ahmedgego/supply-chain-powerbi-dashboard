@@ -1,0 +1,40 @@
+/// Quality inspection outcomes.
+table Inspection
+	lineageTag: 0486440b-2f36-4e1e-81ac-7c63b0715cf7
+
+	column 'Inspection Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b95bd423-a2cb-4237-9345-18a81ac3d3e5
+		summarizeBy: none
+		sourceColumn: Inspection Key
+
+	/// Pass, Pending or Fail.
+	column 'Inspection Result'
+		dataType: string
+		lineageTag: 4e14ba05-7cb2-497d-a890-16ca1f61f438
+		summarizeBy: none
+		sourceColumn: Inspection Result
+		sortByColumn: 'Inspection Sort'
+
+	column 'Inspection Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 668f18fc-c533-49ef-ad9a-0f5fdeb8e23c
+		summarizeBy: none
+		sourceColumn: Inspection Sort
+
+	partition Inspection = m
+		mode: import
+		source =
+				let
+					Source = #"Source Data",
+					#"Listed results" = List.Sort(List.Distinct(Source[Inspection Result])),
+					#"Built table" = Table.FromColumns({List.Numbers(1, List.Count(#"Listed results")), #"Listed results"}, type table [Inspection Key = Int64.Type, Inspection Result = text]),
+					// Show Pass, Pending, Fail in that order
+					#"Added sort" = Table.AddColumn(#"Built table", "Inspection Sort", each if [Inspection Result] = "Pass" then 1 else if [Inspection Result] = "Pending" then 2 else 3, Int64.Type)
+				in
+					#"Added sort"
+

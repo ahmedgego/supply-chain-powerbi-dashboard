@@ -1,0 +1,89 @@
+/// One row per SKU with its product type, price tier and ABC class.
+table Product
+	lineageTag: b9b1a24d-69d8-4dd2-911a-abe7009a1b7e
+
+	column 'Product Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ec57be60-ccc5-4413-b885-b0c39f219824
+		summarizeBy: none
+		sourceColumn: Product Key
+
+	/// Stock keeping unit code.
+	column SKU
+		dataType: string
+		lineageTag: 7e67e0b4-ccbc-4d6b-9998-68bfd53242bb
+		summarizeBy: none
+		sourceColumn: SKU
+
+	/// Skincare, haircare or cosmetics.
+	column 'Product Type'
+		dataType: string
+		lineageTag: b12ae403-3532-4c20-ac8b-b3f69cc656c0
+		summarizeBy: none
+		sourceColumn: Product Type
+		sortByColumn: 'Product Type Order'
+
+	column 'Product Type Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 545fc49a-1d27-420d-a656-b3e110080099
+		summarizeBy: none
+		sourceColumn: Product Type Order
+
+	/// Budget below 33, Mid 33 to 66, Premium above 66.
+	column 'Price Tier'
+		dataType: string
+		lineageTag: 064c3b06-3a9e-4d54-8567-1e406b764d73
+		summarizeBy: none
+		sourceColumn: Price Tier
+		sortByColumn: 'Price Tier Sort'
+
+	column 'Price Tier Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 45370de6-6380-47f1-bc66-a52b8ff9b586
+		summarizeBy: none
+		sourceColumn: Price Tier Sort
+
+	/// A = SKUs making the first 70 percent of portfolio revenue, B = next 20 percent, C = the rest. Calculated on the whole portfolio.
+	column 'ABC Class'
+		dataType: string
+		lineageTag: 2bfb8f1c-7222-4d7b-b1da-9398d41113b3
+		summarizeBy: none
+		sourceColumn: ABC Class
+
+	hierarchy 'Product Hierarchy'
+		lineageTag: 2b717f8a-c38b-4350-a3e0-a3adc75bc131
+
+		level 'Product Type'
+			lineageTag: df34f9b5-1e02-4b9d-bc45-5db89e15449c
+			column: 'Product Type'
+
+		level SKU
+			lineageTag: e433f7db-c7b8-4a24-8236-c8400ce416dc
+			column: SKU
+
+	partition Product = m
+		mode: import
+		source =
+				let
+					Source = #"Source Data",
+					#"Selected columns" = Table.SelectColumns(Source, {"Product Key", "SKU", "Product Type", "Price", "Revenue"}),
+					#"Listed product types" = List.Sort(List.Distinct(#"Selected columns"[Product Type])),
+					#"Added type order" = Table.AddColumn(#"Selected columns", "Product Type Order", each List.PositionOf(#"Listed product types", [Product Type]) + 1, Int64.Type),
+					#"Added price tier" = Table.AddColumn(#"Added type order", "Price Tier", each if [Price] < 33 then "Budget" else if [Price] <= 66 then "Mid" else "Premium", type text),
+					#"Added price tier sort" = Table.AddColumn(#"Added price tier", "Price Tier Sort", each if [Price Tier] = "Budget" then 1 else if [Price Tier] = "Mid" then 2 else 3, Int64.Type),
+					// ABC class by cumulative revenue share: A = first 70 percent, B = next 20 percent, C = remainder
+					#"Sorted by revenue" = Table.Buffer(Table.Sort(#"Added price tier sort", {{"Revenue", Order.Descending}})),
+					#"Added revenue rank" = Table.AddIndexColumn(#"Sorted by revenue", "Revenue Rank", 1, 1, Int64.Type),
+					#"Total revenue" = List.Sum(#"Added revenue rank"[Revenue]),
+					#"Added cumulative revenue" = Table.AddColumn(#"Added revenue rank", "Cumulative Revenue", each List.Sum(List.FirstN(#"Added revenue rank"[Revenue], [Revenue Rank])), type number),
+					#"Added ABC class" = Table.AddColumn(#"Added cumulative revenue", "ABC Class", each if ([Cumulative Revenue] - [Revenue]) / #"Total revenue" < 0.7 then "A" else if ([Cumulative Revenue] - [Revenue]) / #"Total revenue" < 0.9 then "B" else "C", type text),
+					#"Kept product columns" = Table.SelectColumns(#"Added ABC class", {"Product Key", "SKU", "Product Type", "Product Type Order", "Price Tier", "Price Tier Sort", "ABC Class"})
+				in
+					#"Kept product columns"
+

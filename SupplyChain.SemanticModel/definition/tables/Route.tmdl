@@ -1,0 +1,28 @@
+/// Shipping routes.
+table Route
+	lineageTag: 38905e91-0507-428f-b528-9bdb9eca8a5f
+
+	column 'Route Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 37eb655c-e4d2-450f-8025-8e700ca36c64
+		summarizeBy: none
+		sourceColumn: Route Key
+
+	column Route
+		dataType: string
+		lineageTag: 2515a0f5-5612-4073-bb16-ad2531c7636d
+		summarizeBy: none
+		sourceColumn: Route
+
+	partition Route = m
+		mode: import
+		source =
+				let
+					Source = #"Source Data",
+					#"Listed values" = List.Sort(List.Distinct(Source[Route])),
+					#"Built table" = Table.FromColumns({List.Numbers(1, List.Count(#"Listed values")), #"Listed values"}, type table [Route Key = Int64.Type, Route = text])
+				in
+					#"Built table"
+

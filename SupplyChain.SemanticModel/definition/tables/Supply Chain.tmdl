@@ -1,0 +1,443 @@
+/// One row per SKU. Holds the numeric facts and engineered features; descriptive attributes live in the dimension tables.
+table 'Supply Chain'
+	lineageTag: b08c8867-6793-4d40-9ded-178078cc06ea
+
+	/// Sum of revenue generated across the SKUs in the current filter.
+	measure 'Total Revenue' = SUM('Supply Chain'[Revenue])
+		formatString: #,##0
+		displayFolder: Revenue
+		lineageTag: c02503a7-ca26-43f0-89cb-77dfb8040cff
+
+	/// Total number of products sold.
+	measure 'Total Units Sold' = SUM('Supply Chain'[Units Sold])
+		formatString: #,##0
+		displayFolder: Revenue
+		lineageTag: 66fb70f3-3d81-4bd3-8e51-fafca7d76e26
+
+	/// Number of SKUs in the current filter. The model grain is one row per SKU.
+	measure '# SKUs' = COUNTROWS('Supply Chain')
+		formatString: #,##0
+		displayFolder: Revenue
+		lineageTag: d4e4d264-45df-4c17-a467-a7d38c023558
+
+	/// Simple average of the SKU list price.
+	measure 'Average Price' = AVERAGE('Supply Chain'[Price])
+		formatString: #,##0.00
+		displayFolder: Revenue
+		lineageTag: 37bbaa58-a719-42bd-b355-b4961d20c21c
+
+	/// Revenue divided by units sold.
+	measure 'Revenue per Unit' = DIVIDE([Total Revenue], [Total Units Sold])
+		formatString: #,##0.00
+		displayFolder: Revenue
+		lineageTag: 43ffca3e-8284-480f-b1ff-6511566b4253
+
+	/// Revenue in the current filter as a share of the whole portfolio.
+	measure 'Revenue Share' = DIVIDE([Total Revenue], CALCULATE([Total Revenue], REMOVEFILTERS()))
+		formatString: 0.0%
+		displayFolder: Revenue
+		lineageTag: 6a608675-6663-448c-953c-0298e93f1c14
+
+	/// Defect rate in percent, weighted by production volume so large production runs count more. Use this rather than a simple average.
+	measure 'Weighted Defect Rate' = DIVIDE(SUMX('Supply Chain', 'Supply Chain'[Defect Rate] * 'Supply Chain'[Production Volume]), SUM('Supply Chain'[Production Volume]))
+		formatString: 0.00"%"
+		displayFolder: Quality
+		lineageTag: 886114cd-d3cd-461c-b8a5-7b7ddc77324c
+
+	/// Share of SKUs whose inspection result is Fail.
+	measure 'Failed Inspection Rate' = DIVIDE(CALCULATE(COUNTROWS('Supply Chain'), 'Inspection'[Inspection Result] = "Fail"), COUNTROWS('Supply Chain'))
+		formatString: 0.0%
+		displayFolder: Quality
+		lineageTag: 70d60834-d6c0-49b6-8e17-e3a7977c427c
+
+	/// Pearson correlation between manufacturing cost per unit and defect rate across SKUs. Near zero means cost does not explain quality.
+	measure 'Cost Defect Correlation' =
+			VAR _mx = AVERAGE('Supply Chain'[Manufacturing Cost per Unit])
+			VAR _my = AVERAGE('Supply Chain'[Defect Rate])
+			VAR _cov = SUMX('Supply Chain', ('Supply Chain'[Manufacturing Cost per Unit] - _mx) * ('Supply Chain'[Defect Rate] - _my))
+			VAR _vx = SUMX('Supply Chain', ('Supply Chain'[Manufacturing Cost per Unit] - _mx) ^ 2)
+			VAR _vy = SUMX('Supply Chain', ('Supply Chain'[Defect Rate] - _my) ^ 2)
+			RETURN DIVIDE(_cov, SQRT(_vx * _vy), 0)
+		formatString: 0.00
+		displayFolder: Quality
+		lineageTag: a3c663aa-4877-437f-b7bc-ebcb0f954a26
+
+	/// Average days the supplier takes to deliver.
+	measure 'Avg Supplier Lead Time' = AVERAGE('Supply Chain'[Supplier Lead Time])
+		formatString: 0.0
+		displayFolder: Speed
+		lineageTag: 77443f98-4a5b-4299-aa36-16f25277cfad
+
+	/// Average days spent manufacturing.
+	measure 'Avg Manufacturing Lead Time' = AVERAGE('Supply Chain'[Manufacturing Lead Time])
+		formatString: 0.0
+		displayFolder: Speed
+		lineageTag: 6e8c9b10-9cd3-4147-8a1b-fae10e875bc4
+
+	/// Average days in transit.
+	measure 'Avg Shipping Time' = AVERAGE('Supply Chain'[Shipping Time])
+		formatString: 0.0
+		displayFolder: Speed
+		lineageTag: ff51875e-439c-4401-8ccd-27cdce67833d
+
+	/// Average order lead time in days (source field Lead times).
+	measure 'Avg Order Lead Time' = AVERAGE('Supply Chain'[Order Lead Time])
+		formatString: 0.0
+		displayFolder: Speed
+		lineageTag: 50962a23-0817-4bab-95bc-76c7b5ec5de9
+
+	/// Average of supplier lead time plus manufacturing lead time plus shipping time per SKU.
+	measure 'Avg Fulfillment Days' = AVERAGE('Supply Chain'[Total Fulfillment Days])
+		formatString: 0.0
+		displayFolder: Speed
+		lineageTag: dd1f84e8-6309-4543-8e15-a162baacbcd4
+
+	/// Average shipping cost per SKU.
+	measure 'Avg Shipping Cost' = AVERAGE('Supply Chain'[Shipping Cost])
+		formatString: #,##0.00
+		displayFolder: Cost
+		lineageTag: a7b49af8-58f5-43da-915f-aa4647558ee2
+
+	/// Average route transport cost per SKU (source field Costs).
+	measure 'Avg Transport Cost' = AVERAGE('Supply Chain'[Transport Cost])
+		formatString: #,##0.00
+		displayFolder: Cost
+		lineageTag: b05374ad-d844-4dce-b19e-d8ee9bd85cd1
+
+	/// Shipping cost plus transport cost, summed.
+	measure 'Total Logistics Cost' = SUM('Supply Chain'[Logistics Cost])
+		formatString: #,##0
+		displayFolder: Cost
+		lineageTag: 1fcc48ac-555e-4d9b-969d-0641b17d1f25
+
+	/// Average shipping plus transport cost per SKU.
+	measure 'Avg Logistics Cost' = AVERAGE('Supply Chain'[Logistics Cost])
+		formatString: #,##0.00
+		displayFolder: Cost
+		lineageTag: 473810df-b95e-4dad-84de-14e59b1d2b55
+
+	/// Logistics cost as a share of revenue.
+	measure 'Logistics Cost %' = DIVIDE([Total Logistics Cost], [Total Revenue])
+		formatString: 0.0%
+		displayFolder: Cost
+		lineageTag: 007b0645-17d4-4ec5-9700-930df68432e4
+
+	/// Average manufacturing cost per unit.
+	measure 'Avg Manufacturing Cost' = AVERAGE('Supply Chain'[Manufacturing Cost per Unit])
+		formatString: #,##0.00
+		displayFolder: Cost
+		lineageTag: 2181ca48-f6a0-40d9-9895-5315d9b667d2
+
+	/// Manufacturing cost per unit times production volume. An estimate because the source has no total spend field.
+	measure 'Estimated Manufacturing Spend' = SUMX('Supply Chain', 'Supply Chain'[Manufacturing Cost per Unit] * 'Supply Chain'[Production Volume])
+		formatString: #,##0
+		displayFolder: Cost
+		lineageTag: 7d4ed062-c950-40cc-8fa2-d4a81cfcb277
+
+	/// Average product availability in percent.
+	measure 'Avg Availability' = AVERAGE('Supply Chain'[Availability])
+		formatString: 0.0"%"
+		displayFolder: Stock
+		lineageTag: 3cb9ec7f-7477-4f21-a744-01c2d30f127a
+
+	/// SKUs with 10 units or fewer in stock.
+	measure 'Critical Stock SKUs' = CALCULATE(COUNTROWS('Supply Chain'), 'Supply Chain'[Stock Status] = "Critical")
+		formatString: #,##0
+		displayFolder: Stock
+		lineageTag: c18a8585-9eaf-45e8-b116-fdfb783681cd
+
+	/// SKUs holding less stock than their order quantity. Includes the critical-stock SKUs.
+	measure 'SKUs Below Order Quantity' = COUNTROWS(FILTER('Supply Chain', 'Supply Chain'[Stock Level] < 'Supply Chain'[Order Quantity]))
+		formatString: #,##0
+		displayFolder: Stock
+		lineageTag: 43f204f6-3723-44a5-acdc-43cd161dd6d4
+
+	/// Total stock divided by total order quantity. Below 1 means stock does not cover orders.
+	measure 'Stock Coverage Ratio' = DIVIDE(SUM('Supply Chain'[Stock Level]), SUM('Supply Chain'[Order Quantity]))
+		formatString: 0.00
+		displayFolder: Stock
+		lineageTag: c3cd6681-4742-42b2-b38b-1993d6fc3a7e
+
+	column 'Product Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 25c32d73-1133-4774-8cc2-dc9c05b5d132
+		summarizeBy: none
+		sourceColumn: Product Key
+
+	column 'Supplier Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 69c3bcf8-f63e-4cc3-af04-3f3a079a225b
+		summarizeBy: none
+		sourceColumn: Supplier Key
+
+	column 'Location Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ea5ef6d5-91d9-47ce-b204-82ace7321714
+		summarizeBy: none
+		sourceColumn: Location Key
+
+	column 'Carrier Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9e14a1bf-6226-4ca6-8594-7b3e476a37b0
+		summarizeBy: none
+		sourceColumn: Carrier Key
+
+	column 'Transport Mode Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 5d3020ed-5c47-4432-bd19-e6ed3bb0bc70
+		summarizeBy: none
+		sourceColumn: Transport Mode Key
+
+	column 'Route Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: eaac557f-6e23-4cd2-aa95-c8d843280cc4
+		summarizeBy: none
+		sourceColumn: Route Key
+
+	column 'Segment Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d1680b4f-2986-4981-9e9f-9c099b671035
+		summarizeBy: none
+		sourceColumn: Segment Key
+
+	column 'Inspection Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9c0d5f02-87cf-4aaf-87c9-acbf8cdee20f
+		summarizeBy: none
+		sourceColumn: Inspection Key
+
+	column Price
+		dataType: double
+		isHidden
+		formatString: #,##0.00
+		lineageTag: 92f4ce5b-a188-4f4f-b746-40450ac2bd17
+		summarizeBy: sum
+		sourceColumn: Price
+
+		annotation SummarizationSetBy = Automatic
+
+	column Availability
+		dataType: double
+		isHidden
+		formatString: 0.0
+		lineageTag: 12414e28-4988-4b1e-89a0-a762e732df02
+		summarizeBy: sum
+		sourceColumn: Availability
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Units Sold'
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 77a3d05d-f272-49e1-a4f2-ea311523443a
+		summarizeBy: none
+		sourceColumn: Units Sold
+
+	column Revenue
+		dataType: double
+		isHidden
+		formatString: #,##0.00
+		lineageTag: c87ec8e0-699a-4bbb-a61d-128f0e9c13e8
+		summarizeBy: sum
+		sourceColumn: Revenue
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Stock Level'
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: b134cda9-b221-42bd-9e5e-7af1437ebada
+		summarizeBy: none
+		sourceColumn: Stock Level
+
+	column 'Order Quantity'
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 0624da6c-ac59-4ac5-9b6d-4c8f496365a1
+		summarizeBy: none
+		sourceColumn: Order Quantity
+
+	column 'Order Lead Time'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 950363b2-4c90-496d-90a0-72b43d58d45d
+		summarizeBy: none
+		sourceColumn: Order Lead Time
+
+	column 'Shipping Time'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 5f3bce48-92da-4cfd-94e0-7705043843c8
+		summarizeBy: none
+		sourceColumn: Shipping Time
+
+	column 'Shipping Cost'
+		dataType: double
+		isHidden
+		formatString: #,##0.00
+		lineageTag: 9c1fe40a-2a9c-4e34-8e67-71f19fae948f
+		summarizeBy: sum
+		sourceColumn: Shipping Cost
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Supplier Lead Time'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9ec66b7e-32c8-4803-9ae2-d94a4ce25516
+		summarizeBy: none
+		sourceColumn: Supplier Lead Time
+
+	column 'Production Volume'
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 60f91957-83f8-41c8-a6ad-c0b400d9474c
+		summarizeBy: none
+		sourceColumn: Production Volume
+
+	column 'Manufacturing Lead Time'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c6a855b9-69ed-4e91-b369-a8bf6f6f29bf
+		summarizeBy: none
+		sourceColumn: Manufacturing Lead Time
+
+	column 'Manufacturing Cost per Unit'
+		dataType: double
+		isHidden
+		formatString: #,##0.00
+		lineageTag: b1cc9a0a-354e-4526-a87a-a67b81422a24
+		summarizeBy: sum
+		sourceColumn: Manufacturing Cost per Unit
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Defect Rate'
+		dataType: double
+		isHidden
+		formatString: 0.00
+		lineageTag: a81e4e04-42a8-4268-943b-14a1ee7e6468
+		summarizeBy: sum
+		sourceColumn: Defect Rate
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Transport Cost'
+		dataType: double
+		isHidden
+		formatString: #,##0.00
+		lineageTag: ab011a49-dc1d-4015-b307-035187c618bc
+		summarizeBy: sum
+		sourceColumn: Transport Cost
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total Fulfillment Days'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: febf2e76-5bcf-4271-b036-3d493baa3c74
+		summarizeBy: none
+		sourceColumn: Total Fulfillment Days
+
+	column 'Logistics Cost'
+		dataType: double
+		isHidden
+		formatString: #,##0.00
+		lineageTag: 4cb7317f-bec1-4462-a9cb-a3e2851db363
+		summarizeBy: sum
+		sourceColumn: Logistics Cost
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Critical when stock is 10 units or fewer; Reorder when stock is below the order quantity; otherwise Healthy.
+	column 'Stock Status'
+		dataType: string
+		lineageTag: 75c1463a-e583-481f-ba93-a5bab32cfe4b
+		summarizeBy: none
+		sourceColumn: Stock Status
+		sortByColumn: 'Stock Status Sort'
+
+	column 'Stock Status Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1e0813d5-3691-4a4a-87b9-9266dbd0c8d2
+		summarizeBy: none
+		sourceColumn: Stock Status Sort
+
+	/// Low below 1.5 percent, Medium 1.5 to 3 percent, High above 3 percent.
+	column 'Defect Band'
+		dataType: string
+		lineageTag: 97d88ae4-4916-40f2-82bb-48c97795d36b
+		summarizeBy: none
+		sourceColumn: Defect Band
+		sortByColumn: 'Defect Band Sort'
+
+	column 'Defect Band Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 79400ffa-2e6c-4b76-98a4-1f6178fbb396
+		summarizeBy: none
+		sourceColumn: Defect Band Sort
+
+	/// Fast is 30 days or fewer in total, Standard 31 to 45 days, Slow above 45 days.
+	column 'Fulfillment Speed'
+		dataType: string
+		lineageTag: 9cb01e28-76b7-4384-b6c3-924cc24ea506
+		summarizeBy: none
+		sourceColumn: Fulfillment Speed
+		sortByColumn: 'Fulfillment Speed Sort'
+
+	column 'Fulfillment Speed Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 68615051-767d-4446-93df-46f63be730f9
+		summarizeBy: none
+		sourceColumn: Fulfillment Speed Sort
+
+	partition 'Supply Chain' = m
+		mode: import
+		source =
+				let
+					Source = #"Source Data",
+					#"Selected columns" = Table.SelectColumns(Source, {"Product Key", "Supplier Key", "Location Key", "Carrier Key", "Transport Mode Key", "Route Key", "Segment Key", "Inspection Key", "Price", "Availability", "Units Sold", "Revenue", "Stock Level", "Order Quantity", "Order Lead Time", "Shipping Time", "Shipping Cost", "Supplier Lead Time", "Production Volume", "Manufacturing Lead Time", "Manufacturing Cost per Unit", "Defect Rate", "Transport Cost"}),
+					// Total days from supplier order to delivery
+					#"Added fulfillment days" = Table.AddColumn(#"Selected columns", "Total Fulfillment Days", each [Supplier Lead Time] + [Manufacturing Lead Time] + [Shipping Time], Int64.Type),
+					#"Added logistics cost" = Table.AddColumn(#"Added fulfillment days", "Logistics Cost", each [Shipping Cost] + [Transport Cost], type number),
+					// Stock risk class: critical at 10 units or less, reorder when stock is below the order quantity
+					#"Added stock status" = Table.AddColumn(#"Added logistics cost", "Stock Status", each if [Stock Level] <= 10 then "Critical" else if [Stock Level] < [Order Quantity] then "Reorder" else "Healthy", type text),
+					#"Added stock status sort" = Table.AddColumn(#"Added stock status", "Stock Status Sort", each if [Stock Status] = "Critical" then 1 else if [Stock Status] = "Reorder" then 2 else 3, Int64.Type),
+					#"Added defect band" = Table.AddColumn(#"Added stock status sort", "Defect Band", each if [Defect Rate] < 1.5 then "Low" else if [Defect Rate] < 3 then "Medium" else "High", type text),
+					#"Added defect band sort" = Table.AddColumn(#"Added defect band", "Defect Band Sort", each if [Defect Band] = "Low" then 1 else if [Defect Band] = "Medium" then 2 else 3, Int64.Type),
+					#"Added fulfillment speed" = Table.AddColumn(#"Added defect band sort", "Fulfillment Speed", each if [Total Fulfillment Days] <= 30 then "Fast" else if [Total Fulfillment Days] <= 45 then "Standard" else "Slow", type text),
+					#"Added fulfillment speed sort" = Table.AddColumn(#"Added fulfillment speed", "Fulfillment Speed Sort", each if [Fulfillment Speed] = "Fast" then 1 else if [Fulfillment Speed] = "Standard" then 2 else 3, Int64.Type)
+				in
+					#"Added fulfillment speed sort"
+

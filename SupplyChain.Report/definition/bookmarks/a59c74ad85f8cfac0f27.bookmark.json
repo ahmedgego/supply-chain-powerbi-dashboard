@@ -1,0 +1,93 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Overview - Close filters",
+  "name": "a59c74ad85f8cfac0f27",
+  "options": {
+    "targetVisualNames": [
+      "6915b0d69866bd6fcc96",
+      "4c83adf7f36e494f6231",
+      "bb0793048f34d6781f39",
+      "7e1d369d8d35f66348d3",
+      "88e79f02177cdc530046",
+      "f9eb218a2817db3fa9a4",
+      "c4d89620ccc6b4df808b",
+      "0746f760488f232cfd39",
+      "fba8971a64241c687566"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "babd2d6369c84492e297",
+    "sections": {
+      "babd2d6369c84492e297": {
+        "visualContainers": {
+          "6915b0d69866bd6fcc96": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "4c83adf7f36e494f6231": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "bb0793048f34d6781f39": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "7e1d369d8d35f66348d3": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "88e79f02177cdc530046": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "f9eb218a2817db3fa9a4": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "c4d89620ccc6b4df808b": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "0746f760488f232cfd39": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "fba8971a64241c687566": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

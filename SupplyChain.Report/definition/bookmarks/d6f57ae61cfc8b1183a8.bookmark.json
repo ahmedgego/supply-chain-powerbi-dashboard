@@ -1,0 +1,57 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Logistics & Stock - Open filters",
+  "name": "d6f57ae61cfc8b1183a8",
+  "options": {
+    "targetVisualNames": [
+      "45441c485466cbf2c5da",
+      "01ffbefc38d086076fb0",
+      "311cf3e78cde48fb91ec",
+      "2006239c2755f4fe865d",
+      "d05391aafe7ea5f117aa",
+      "f89445c7ca18d8691652",
+      "19dd599cb2fc52cbad73",
+      "915ab6cbf8f24e1b66cc",
+      "a06d09a5bcff3c4b7b5f"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "52d624d7d773e89d98bc",
+    "sections": {
+      "52d624d7d773e89d98bc": {
+        "visualContainers": {
+          "45441c485466cbf2c5da": {
+            "singleVisual": {}
+          },
+          "01ffbefc38d086076fb0": {
+            "singleVisual": {}
+          },
+          "311cf3e78cde48fb91ec": {
+            "singleVisual": {}
+          },
+          "2006239c2755f4fe865d": {
+            "singleVisual": {}
+          },
+          "d05391aafe7ea5f117aa": {
+            "singleVisual": {}
+          },
+          "f89445c7ca18d8691652": {
+            "singleVisual": {}
+          },
+          "19dd599cb2fc52cbad73": {
+            "singleVisual": {}
+          },
+          "915ab6cbf8f24e1b66cc": {
+            "singleVisual": {}
+          },
+          "a06d09a5bcff3c4b7b5f": {
+            "singleVisual": {}
+          }
+        }
+      }
+    }
+  }
+}

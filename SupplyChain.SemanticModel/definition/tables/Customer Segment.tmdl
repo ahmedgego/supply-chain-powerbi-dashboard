@@ -1,0 +1,28 @@
+/// Customer demographic segments.
+table 'Customer Segment'
+	lineageTag: 28812363-3eb1-4a8f-8d92-16cc9931d46f
+
+	column 'Segment Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4ff09c9c-3e12-4ab2-ab33-8f007c5f5424
+		summarizeBy: none
+		sourceColumn: Segment Key
+
+	column 'Customer Segment'
+		dataType: string
+		lineageTag: 6013b755-44ad-4a0f-b033-f793d0cb4b5f
+		summarizeBy: none
+		sourceColumn: Customer Segment
+
+	partition 'Customer Segment' = m
+		mode: import
+		source =
+				let
+					Source = #"Source Data",
+					#"Listed values" = List.Sort(List.Distinct(Source[Customer Segment])),
+					#"Built table" = Table.FromColumns({List.Numbers(1, List.Count(#"Listed values")), #"Listed values"}, type table [Segment Key = Int64.Type, Customer Segment = text])
+				in
+					#"Built table"
+

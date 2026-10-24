@@ -1,0 +1,93 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Logistics & Stock - Close filters",
+  "name": "1ba8574572603f319b2f",
+  "options": {
+    "targetVisualNames": [
+      "45441c485466cbf2c5da",
+      "01ffbefc38d086076fb0",
+      "311cf3e78cde48fb91ec",
+      "2006239c2755f4fe865d",
+      "d05391aafe7ea5f117aa",
+      "f89445c7ca18d8691652",
+      "19dd599cb2fc52cbad73",
+      "915ab6cbf8f24e1b66cc",
+      "a06d09a5bcff3c4b7b5f"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "52d624d7d773e89d98bc",
+    "sections": {
+      "52d624d7d773e89d98bc": {
+        "visualContainers": {
+          "45441c485466cbf2c5da": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "01ffbefc38d086076fb0": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "311cf3e78cde48fb91ec": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "2006239c2755f4fe865d": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "d05391aafe7ea5f117aa": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "f89445c7ca18d8691652": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "19dd599cb2fc52cbad73": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "915ab6cbf8f24e1b66cc": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "a06d09a5bcff3c4b7b5f": {
+            "singleVisual": {
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

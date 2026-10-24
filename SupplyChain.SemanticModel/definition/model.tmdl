@@ -1,0 +1,27 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["Supply Chain","Product","Supplier","Location","Carrier","Transport Mode","Route","Customer Segment","Inspection","Theme Mode","Data File Path","Source Data"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table 'Supply Chain'
+ref table Product
+ref table Supplier
+ref table Location
+ref table Carrier
+ref table 'Transport Mode'
+ref table Route
+ref table 'Customer Segment'
+ref table Inspection
+ref table 'Theme Mode'
+ref table 'HTML Visuals'
+

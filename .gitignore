@@ -1,0 +1,10 @@
+# Power BI local files
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# Working files, not part of the project
+_brief/
+
+# OS files
+.DS_Store
+Thumbs.db

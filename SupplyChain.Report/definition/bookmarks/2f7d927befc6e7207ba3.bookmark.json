@@ -1,0 +1,57 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Supplier & Quality - Open filters",
+  "name": "2f7d927befc6e7207ba3",
+  "options": {
+    "targetVisualNames": [
+      "7a154e3bef01434f5363",
+      "00abef167f95bb01b5e2",
+      "51ec5e053e43485a2e41",
+      "a18e1e5f60e4b29c4444",
+      "33391566cd3ff3691a9e",
+      "de8792595f2f22b1a2b9",
+      "343446f0efea6a6d5feb",
+      "68f5794d79f118caaafe",
+      "35490687af5ee10b5d01"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "1de36e30fa147ae34609",
+    "sections": {
+      "1de36e30fa147ae34609": {
+        "visualContainers": {
+          "7a154e3bef01434f5363": {
+            "singleVisual": {}
+          },
+          "00abef167f95bb01b5e2": {
+            "singleVisual": {}
+          },
+          "51ec5e053e43485a2e41": {
+            "singleVisual": {}
+          },
+          "a18e1e5f60e4b29c4444": {
+            "singleVisual": {}
+          },
+          "33391566cd3ff3691a9e": {
+            "singleVisual": {}
+          },
+          "de8792595f2f22b1a2b9": {
+            "singleVisual": {}
+          },
+          "343446f0efea6a6d5feb": {
+            "singleVisual": {}
+          },
+          "68f5794d79f118caaafe": {
+            "singleVisual": {}
+          },
+          "35490687af5ee10b5d01": {
+            "singleVisual": {}
+          }
+        }
+      }
+    }
+  }
+}

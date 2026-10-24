@@ -1,0 +1,84 @@
+/// Full path of supply_chain_data.csv. Change this parameter if the file moves.
+expression 'Data File Path' = "C:\Users\ascom\Desktop\aurum-jet-main\Supply Chain\supply_chain_data.csv" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: f2e50693-fc73-4edc-a965-ee7b5b34a5e4
+
+	annotation PBI_ResultType = Text
+
+/// Typed and renamed rows of the source CSV, with the surrogate keys used by the dimension tables.
+expression 'Source Data' =
+		let
+			// Read the raw CSV file from the path parameter
+			Source = Csv.Document(File.Contents(#"Data File Path"), [Delimiter = ",", Columns = 24, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+			#"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+			// Give columns business-friendly names; the two lead-time fields get distinct names
+			#"Renamed columns" = Table.RenameColumns(#"Promoted headers", {
+				{"Product type", "Product Type"},
+				{"Number of products sold", "Units Sold"},
+				{"Revenue generated", "Revenue"},
+				{"Customer demographics", "Customer Segment"},
+				{"Stock levels", "Stock Level"},
+				{"Lead times", "Order Lead Time"},
+				{"Order quantities", "Order Quantity"},
+				{"Shipping times", "Shipping Time"},
+				{"Shipping carriers", "Carrier"},
+				{"Shipping costs", "Shipping Cost"},
+				{"Supplier name", "Supplier"},
+				{"Location", "City"},
+				{"Lead time", "Supplier Lead Time"},
+				{"Production volumes", "Production Volume"},
+				{"Manufacturing lead time", "Manufacturing Lead Time"},
+				{"Manufacturing costs", "Manufacturing Cost per Unit"},
+				{"Inspection results", "Inspection Result"},
+				{"Defect rates", "Defect Rate"},
+				{"Transportation modes", "Transport Mode"},
+				{"Routes", "Route"},
+				{"Costs", "Transport Cost"}}),
+			#"Changed types" = Table.TransformColumnTypes(#"Renamed columns", {
+				{"Product Type", type text},
+				{"SKU", type text},
+				{"Price", type number},
+				{"Availability", type number},
+				{"Units Sold", Int64.Type},
+				{"Revenue", type number},
+				{"Customer Segment", type text},
+				{"Stock Level", Int64.Type},
+				{"Order Lead Time", Int64.Type},
+				{"Order Quantity", Int64.Type},
+				{"Shipping Time", Int64.Type},
+				{"Carrier", type text},
+				{"Shipping Cost", type number},
+				{"Supplier", type text},
+				{"City", type text},
+				{"Supplier Lead Time", Int64.Type},
+				{"Production Volume", Int64.Type},
+				{"Manufacturing Lead Time", Int64.Type},
+				{"Manufacturing Cost per Unit", type number},
+				{"Inspection Result", type text},
+				{"Defect Rate", type number},
+				{"Transport Mode", type text},
+				{"Route", type text},
+				{"Transport Cost", type number}}, "en-US"),
+			// Trim stray spaces and proper-case the product type
+			#"Cleaned text" = Table.TransformColumns(#"Changed types", {
+				{"Product Type", each Text.Proper(Text.Trim(_)), type text}, {"SKU", Text.Trim, type text}, {"Customer Segment", Text.Trim, type text},
+				{"Carrier", Text.Trim, type text}, {"Supplier", Text.Trim, type text}, {"City", Text.Trim, type text},
+				{"Inspection Result", Text.Trim, type text}, {"Transport Mode", Text.Trim, type text}, {"Route", Text.Trim, type text}}),
+			#"Added product key" = Table.AddIndexColumn(#"Cleaned text", "Product Key", 1, 1, Int64.Type),
+			#"Listed supplier" = List.Sort(List.Distinct(#"Added product key"[Supplier])),
+			#"Added supplier key" = Table.AddColumn(#"Added product key", "Supplier Key", each List.PositionOf(#"Listed supplier", [Supplier]) + 1, Int64.Type),
+			#"Listed city" = List.Sort(List.Distinct(#"Added supplier key"[City])),
+			#"Added location key" = Table.AddColumn(#"Added supplier key", "Location Key", each List.PositionOf(#"Listed city", [City]) + 1, Int64.Type),
+			#"Listed carrier" = List.Sort(List.Distinct(#"Added location key"[Carrier])),
+			#"Added carrier key" = Table.AddColumn(#"Added location key", "Carrier Key", each List.PositionOf(#"Listed carrier", [Carrier]) + 1, Int64.Type),
+			#"Listed transport mode" = List.Sort(List.Distinct(#"Added carrier key"[Transport Mode])),
+			#"Added transport mode key" = Table.AddColumn(#"Added carrier key", "Transport Mode Key", each List.PositionOf(#"Listed transport mode", [Transport Mode]) + 1, Int64.Type),
+			#"Listed route" = List.Sort(List.Distinct(#"Added transport mode key"[Route])),
+			#"Added route key" = Table.AddColumn(#"Added transport mode key", "Route Key", each List.PositionOf(#"Listed route", [Route]) + 1, Int64.Type),
+			#"Listed customer segment" = List.Sort(List.Distinct(#"Added route key"[Customer Segment])),
+			#"Added segment key" = Table.AddColumn(#"Added route key", "Segment Key", each List.PositionOf(#"Listed customer segment", [Customer Segment]) + 1, Int64.Type),
+			#"Listed inspection result" = List.Sort(List.Distinct(#"Added segment key"[Inspection Result])),
+			#"Added inspection key" = Table.AddColumn(#"Added segment key", "Inspection Key", each List.PositionOf(#"Listed inspection result", [Inspection Result]) + 1, Int64.Type)
+		in
+			#"Added inspection key"
+	lineageTag: c9853859-aaf3-4bd5-aa16-59630dbe2115
+

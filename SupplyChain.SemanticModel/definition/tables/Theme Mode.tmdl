@@ -1,0 +1,38 @@
+/// Light or Dark display mode. Disconnected from the data; the page slicer on this table drives the colour theme of every HTML visual.
+table 'Theme Mode'
+	lineageTag: 47f8dd6c-a490-4fe5-9460-75e4349bb865
+
+	/// True when Dark is selected in the Theme Mode slicer. Defaults to Light when nothing is selected.
+	measure 'Is Dark' = FALSE()
+		displayFolder: Theme
+		lineageTag: 4d59cbf7-6125-448e-8df9-22a6dcc5643c
+
+	/// CSS custom properties for the selected mode, used by every HTML visual.
+	measure 'Theme Variables' = IF([Is Dark], ":root{--bg:#0A1020;--surface:#131C31;--surface2:#1A2540;--text:#F4F7FD;--muted:#C5D0E8;--line:#3A4B74;--glow:0.55;--shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px rgba(0,0,0,.35);--rev:#4DB1F0;--units:#2FD3A2;--defect:#FF8A4C;--time:#FFC247;--cost:#E7A0CB;--risk:#FF7A6B;--good:#2FD3A2;--warn:#FFC247;--on_good:#07101F;--on_warn:#07101F;--on_risk:#07101F;--on_c4:#07101F;--on_rev:#07101F;--on_c1:#07101F;--on_c2:#07101F;--on_c3:#07101F;--on_c5:#07101F;--on_defect:#07101F;--k:1;--knob:linear-gradient(135deg,#9CC9FF,#7E96FF);--on_knob:#07101F;--c1:#6FA3E8;--c2:#F2B14F;--c3:#5CCBA9;--c4:#C4A0EA;--c5:#EE9A9A;--heat:#4DB1F0}", ":root{--bg:#F3F6FB;--surface:#FFFFFF;--surface2:#EEF3FA;--text:#0F172A;--muted:#566782;--line:#DCE4F0;--glow:0.18;--shadow:0 1px 2px rgba(15,23,42,.05),0 10px 28px rgba(15,23,42,.07);--rev:#0072B2;--units:#007A5A;--defect:#C24E00;--time:#B87A00;--cost:#A8467F;--risk:#B3261E;--good:#007A5A;--warn:#8F5E00;--on_good:#FFFFFF;--on_warn:#FFFFFF;--on_risk:#FFFFFF;--on_c4:#FFFFFF;--on_rev:#FFFFFF;--on_c1:#FFFFFF;--on_c2:#0F172A;--on_c3:#0F172A;--on_c5:#FFFFFF;--on_defect:#FFFFFF;--k:0;--knob:linear-gradient(135deg,#FFC247,#FF8A4C);--on_knob:#1B1203;--c1:#2F6DB5;--c2:#C97712;--c3:#2E8F73;--c4:#8A59B8;--c5:#BF5B5B;--heat:#0072B2}")
+		displayFolder: Theme
+		lineageTag: 193a9986-aabd-437b-9168-88985e45a2e5
+
+	/// Display mode: Light or Dark.
+	column Mode
+		dataType: string
+		lineageTag: dd13f470-70f2-4f4c-b587-5f693d00d740
+		summarizeBy: none
+		sourceColumn: Mode
+		sortByColumn: 'Mode Order'
+
+	column 'Mode Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 41dc9c16-12c3-43b1-9a85-350b2f27380b
+		summarizeBy: none
+		sourceColumn: Mode Order
+
+	partition 'Theme Mode' = m
+		mode: import
+		source =
+				let
+					Source = #table(type table [Mode = text, Mode Order = Int64.Type], {{"Light", 1}, {"Dark", 2}})
+				in
+					Source
+

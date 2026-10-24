@@ -1,0 +1,28 @@
+/// Shipping carriers.
+table Carrier
+	lineageTag: ee8baf14-3475-4dad-93c4-615cf513a50e
+
+	column 'Carrier Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: bda711d0-0961-4ac1-84ae-5a5b7e0b1c5e
+		summarizeBy: none
+		sourceColumn: Carrier Key
+
+	column Carrier
+		dataType: string
+		lineageTag: 92914ab9-032a-47a4-8050-361a2dad4c52
+		summarizeBy: none
+		sourceColumn: Carrier
+
+	partition Carrier = m
+		mode: import
+		source =
+				let
+					Source = #"Source Data",
+					#"Listed values" = List.Sort(List.Distinct(Source[Carrier])),
+					#"Built table" = Table.FromColumns({List.Numbers(1, List.Count(#"Listed values")), #"Listed values"}, type table [Carrier Key = Int64.Type, Carrier = text])
+				in
+					#"Built table"
+

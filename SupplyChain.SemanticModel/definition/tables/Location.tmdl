@@ -1,0 +1,111 @@
+/// Locations (cities) where SKUs are produced or held, with region and map coordinates.
+table Location
+	lineageTag: a2a1bce5-9a39-473a-9a05-42f75564bd48
+
+	column 'Location Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e1aaa246-fe7c-4a16-bd99-ec20c5f03510
+		summarizeBy: none
+		sourceColumn: Location Key
+
+	/// City of the location.
+	column City
+		dataType: string
+		lineageTag: 88cdf79d-c38f-4c53-a3aa-d1c683215936
+		dataCategory: City
+		summarizeBy: none
+		sourceColumn: City
+
+	/// West, North, East or South of India.
+	column Region
+		dataType: string
+		lineageTag: b8987362-38be-4a7f-8bf3-c602c43b42c2
+		summarizeBy: none
+		sourceColumn: Region
+
+	column Country
+		dataType: string
+		lineageTag: a31309b5-4289-4cd6-9f06-cfb0d7798f02
+		dataCategory: Country
+		summarizeBy: none
+		sourceColumn: Country
+
+	column Latitude
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 17bcc48c-b085-485a-87d1-3691a733d627
+		dataCategory: Latitude
+		summarizeBy: none
+		sourceColumn: Latitude
+
+	column Longitude
+		dataType: double
+		formatString: 0.0000
+		lineageTag: cfe8913e-8d51-4eee-87af-5ba9414001b9
+		dataCategory: Longitude
+		summarizeBy: none
+		sourceColumn: Longitude
+
+	column 'Map X'
+		dataType: double
+		isHidden
+		formatString: 0.000
+		lineageTag: 23af1f56-7e3d-4ff6-83bf-0120adda2d95
+		summarizeBy: none
+		sourceColumn: Map X
+
+	column 'Map Y'
+		dataType: double
+		isHidden
+		formatString: 0.000
+		lineageTag: eff0f1b7-7ed6-4e05-98f3-2f851d35a73f
+		summarizeBy: none
+		sourceColumn: Map Y
+
+	column 'Label Side'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d23ff014-cbdd-4df4-b492-a8ac98bacf7d
+		summarizeBy: none
+		sourceColumn: Label Side
+
+	hierarchy Geography
+		lineageTag: 92469086-e861-47d1-a456-eb03b78b4dee
+
+		level Region
+			lineageTag: 43fdd9c3-e472-4f90-88b1-0f6d45dc98b0
+			column: Region
+
+		level City
+			lineageTag: c11dc27e-fb7f-429d-8c38-d9c9554bbeb4
+			column: City
+
+	partition Location = m
+		mode: import
+		source =
+				let
+					Source = #"Source Data",
+					#"Listed cities" = List.Sort(List.Distinct(Source[City])),
+					#"Built city table" = Table.FromColumns({List.Numbers(1, List.Count(#"Listed cities")), #"Listed cities"}, type table [Location Key = Int64.Type, City = text]),
+					// Reference coordinates and region for each city; Side places the map label left (-1) or right (1)
+					Reference = [
+						Bangalore = [Region = "South", Latitude = 12.9716, Longitude = 77.5946, Side = -1],
+						Chennai = [Region = "South", Latitude = 13.0827, Longitude = 80.2707, Side = 1],
+						Delhi = [Region = "North", Latitude = 28.6139, Longitude = 77.2090, Side = 1],
+						Kolkata = [Region = "East", Latitude = 22.5726, Longitude = 88.3639, Side = -1],
+						Mumbai = [Region = "West", Latitude = 19.0760, Longitude = 72.8777, Side = 1]
+					],
+					#"Added region" = Table.AddColumn(#"Built city table", "Region", each try Record.Field(Record.Field(Reference, [City]), "Region") otherwise "Other", type text),
+					#"Added country" = Table.AddColumn(#"Added region", "Country", each "India", type text),
+					#"Added latitude" = Table.AddColumn(#"Added country", "Latitude", each try Record.Field(Record.Field(Reference, [City]), "Latitude") otherwise null, type number),
+					#"Added longitude" = Table.AddColumn(#"Added latitude", "Longitude", each try Record.Field(Record.Field(Reference, [City]), "Longitude") otherwise null, type number),
+					// Schematic map position scaled to 0-1 across 70-90 degrees east and 10-30 degrees north
+					#"Added map x" = Table.AddColumn(#"Added longitude", "Map X", each if [Longitude] = null then 0.5 else ([Longitude] - 70) / 20, type number),
+					#"Added map y" = Table.AddColumn(#"Added map x", "Map Y", each if [Latitude] = null then 0.5 else (30 - [Latitude]) / 20, type number),
+					#"Added label side" = Table.AddColumn(#"Added map y", "Label Side", each try Record.Field(Record.Field(Reference, [City]), "Side") otherwise 1, Int64.Type)
+				in
+					#"Added label side"
+

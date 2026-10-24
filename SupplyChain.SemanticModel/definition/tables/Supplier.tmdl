@@ -1,0 +1,29 @@
+/// Suppliers that provide the SKUs.
+table Supplier
+	lineageTag: 8043ff4c-7922-4e15-a2ce-7c8eaf56265c
+
+	column 'Supplier Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9e54b5dd-d30a-4c16-aa99-3ee2971d360c
+		summarizeBy: none
+		sourceColumn: Supplier Key
+
+	/// Supplier name.
+	column Supplier
+		dataType: string
+		lineageTag: 5cfc99ba-ad49-4d5a-bdff-5f11fa878c1f
+		summarizeBy: none
+		sourceColumn: Supplier
+
+	partition Supplier = m
+		mode: import
+		source =
+				let
+					Source = #"Source Data",
+					#"Listed values" = List.Sort(List.Distinct(Source[Supplier])),
+					#"Built table" = Table.FromColumns({List.Numbers(1, List.Count(#"Listed values")), #"Listed values"}, type table [Supplier Key = Int64.Type, Supplier = text])
+				in
+					#"Built table"
+
